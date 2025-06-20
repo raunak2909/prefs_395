@@ -11,7 +11,10 @@ class _HomePageState extends State<HomePage> {
 
   SharedPreferences? prefs;
   String name = "";
+  int count  = 0;
   String nameKey = "name";
+  String countKey = "count";
+  Color bgColor = Colors.black;
 
   @override
   initState() {
@@ -22,6 +25,21 @@ class _HomePageState extends State<HomePage> {
   void initPrefs() async{
     prefs = await SharedPreferences.getInstance();
     getNameFromPrefs();
+    updateCount();
+  }
+
+  updateCount(){
+    count = prefs!.getInt(countKey) ?? 0;
+    count++;
+    prefs!.setInt(countKey, count);
+    if(count%3 == 0&&count%5 == 0){
+      bgColor = Colors.orange;
+    } else if(count%5 == 0){
+      bgColor = Colors.blue;
+    } else if(count%3 == 0){
+      bgColor = Colors.green;
+    }
+    setState(() {});
   }
 
   void getNameFromPrefs(){
@@ -40,24 +58,34 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
 
     return Scaffold(
+      backgroundColor: bgColor,
       appBar: AppBar(
         title: Text('Home'),
       ),
-      body: Column(
+      body: Stack(
         children: [
-          Text("Welcome $name", style: TextStyle(fontSize: 20),),
           SizedBox(
-            height: 11,
+            width: double.infinity,
+            height: double.infinity,
+            child: Center(child: Text("$count", style: TextStyle(fontSize: 100, color: Colors.white38),)),
           ),
-          TextField(
-            controller: nameController,
+          Column(
+            children: [
+              Text("Welcome $name", style: TextStyle(fontSize: 20),),
+              SizedBox(
+                height: 11,
+              ),
+              TextField(
+                controller: nameController,
+              ),
+              SizedBox(
+                height: 11,
+              ),
+              ElevatedButton(onPressed: (){
+                setNameToPrefs(name: nameController.text);
+              }, child: Text('Save'))
+            ],
           ),
-          SizedBox(
-            height: 11,
-          ),
-          ElevatedButton(onPressed: (){
-            setNameToPrefs(name: nameController.text);
-          }, child: Text('Save'))
         ],
       ),
     );
